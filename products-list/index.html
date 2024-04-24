@@ -9,71 +9,167 @@
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
       crossorigin="anonymous"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
 
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+
+    <link rel="stylesheet" href="style.css" />
     <title>Document</title>
   </head>
   <body>
     <div id="app">
-      <nav class="nav-cart position-sticky top-0 z-1">
-        <div class="form-floating mb-3">
-          <textarea
-            class="form-control"
-            placeholder="Leave a comment here"
-            id="floatingTextareaDisabled"
-            disabled
-          ></textarea>
-          <label for="floatingTextareaDisabled"
-            >Cart :
-            <span class="badge rounded-pill text-bg-success"
-              >{{cart.length}}</span
+      <nav v-bind:class="style.navbar" class="bg-secondary p-1">
+        <div
+          class="form-floating mb-3"
+          :style="{width: '900px', margin: '30px auto'} "
+        >
+          <div class="dropdown">
+            <button
+              class="btn btn-success dropdown-toggle"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
             >
-          </label>
+              <div v-if="cart.length > 0">
+                <span class="badge rounded-pill text-bg-secondary"
+                  >{{cartQty}}</span
+                >
+                <span>
+                  <i class="fa-solid fa-cart-shopping"></i>
+                  {{cartTotal | currencyFormat}}
+                </span>
+              </div>
+              <div v-else>Belum ada item</div>
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <span class="dropdown-item">
+                  <div v-if="cart.length > 0">
+                    <div v-for="(item, index) in cart" :key="index">
+                      <span class="badge rounded-pill text-bg-warning"
+                        >{{item.qty}}x</span
+                      >
+                      {{item.product.name}} :
+                      <b>{{item.product.price * item.qty| currencyFormat}}</b>
+                      <span
+                        v-on:click.stop="removeItem(index)"
+                        class="badge text-bg-danger remove-item"
+                        >-</span
+                      >
+                    </div>
+                  </div>
+                  <div v-else>
+                    <b>Keranjang Kosong</b>
+                  </div>
+                </span>
+              </li>
+
+              <li><hr class="dropdown-divider" /></li>
+              <li v-if="cart.length > 0">
+                <a class="dropdown-item" href="#">
+                  Total Barang :
+                  <span class="badge rounded-pill text-bg-danger"
+                    >{{cartQty}}</span
+                  >
+                  <br />
+                  Total Harga :
+                  <span> {{cartTotal | currencyFormat}} </span>
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
       </nav>
-      <h2 class="text-center m-3">Data Anime</h2>
-      <div class="input-group mb-3 w-50 mx-auto">
-        <span class="input-group-text bg-success">Max : $</span>
-        <input
-          type="number"
-          class="form-control"
-          aria-label="Amount (to the nearest dollar)"
-          v-model="maximum"
-        />
-        <label for="customRange1" class="form-label">Example range</label>
-        <input
-          type="range"
-          class="form-range"
-          id="customRange1"
-          min="10"
-          max="200"
-          v-model="maximum"
-        />
+      <h2 class="text-center m-3">Data Products</h2>
+      <div class="toggle-form mx-auto text-center">
+        <transition
+          name="fade"
+          enter-active-class="animated fadeInDown"
+          leave-active-class="animated slideOutRight"
+        >
+          <div
+            class="toggle-group w-auto"
+            v-html="toggleStatus"
+            v-on:click="toggleClick()"
+          ></div>
+        </transition>
       </div>
-      <div class="container d-flex justify-content-center flex-wrap gap-5">
-        <div class="perulangan" v-for="item in products">
-          <div class="Pengkondisian" v-if="item.price <= Number(maximum)">
-            <div class="card" style="width: 18rem" v>
-              <!-- tanpa menggunakan v-bind pun bisa menggunakan : seperti ini -->
-              <img
-                :src="item.image"
-                v-bind:alt="item.image_title"
-                class="card-img-top"
-              />
-              <div class="card-body">
-                <h5 class="card-title">{{item.name}}</h5>
-                <p class="card-text">{{item.description}}</p>
-                <p class="card-text">Harga Barang : Rp{{item.price}}</p>
-                <div class="d-flex justify-content-between">
-                  <a :href="item.image" class="btn btn-primary">Show Image</a>
-                  <button class="btn btn-info" v-on:click="addToCart(item)">
-                    Add to cart
-                  </button>
-                </div>
+      <transition
+        name="custom"
+        enter-active-class="animate__animated animate__fadeInDown"
+        leave-active-class="animate__animated animate__fadeOutRight"
+      >
+        <div v-if="style.displayState">
+          <div
+            class="input-group mb-3 w-50 mx-auto"
+            v-bind:class="sliderStatus"
+          >
+            <span class="input-group-text bg-success">Max : $</span>
+            <input
+              type="number"
+              class="form-control"
+              aria-label="Amount (to the nearest dollar)"
+              v-model="maximum"
+            />
+            <input
+              type="range"
+              class="form-range"
+              id="customRange1"
+              min="10"
+              max="200"
+              v-model="maximum"
+            />
+          </div>
+        </div>
+      </transition>
+      <transition-group
+        class="container d-flex justify-content-center flex-wrap"
+        name="custom"
+        tag="div"
+        @before-enter="before"
+        @enter="enter"
+        @leave="leave"
+      >
+        >
+        <div
+          class="m-1 d-none"
+          v-for="(item, index) in products"
+          v-if="item.price <= Number(maximum)"
+          :key="item.id"
+          :data-index="index"
+        >
+          <div class="card" style="width: 18rem" v>
+            <!-- tanpa menggunakan v-bind pun bisa menggunakan : seperti ini -->
+            <img
+              :src="item.image"
+              v-bind:alt="item.image_title"
+              class="card-img-top"
+            />
+            <div class="card-body">
+              <h5 class="card-title">{{item.name}}</h5>
+              <p class="card-text">{{item.description}}</p>
+              <p class="card-text">
+                Harga Barang : {{item.price | currencyFormat}}
+              </p>
+              <div class="d-flex justify-content-between">
+                <a :href="item.image" class="btn btn-primary">Show Image</a>
+                <button class="btn btn-info" v-on:click="addToCart(item)">
+                  Add to cart
+                </button>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </transition-group>
     </div>
 
     <script
