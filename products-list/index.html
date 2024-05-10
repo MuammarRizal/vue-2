@@ -131,45 +131,14 @@
           </div>
         </div>
       </transition>
-      <transition-group
-        class="container d-flex justify-content-center flex-wrap"
-        name="custom"
-        tag="div"
-        @before-enter="before"
-        @enter="enter"
-        @leave="leave"
-      >
-        >
-        <div
-          class="m-1 d-none"
-          v-for="(item, index) in products"
-          v-if="item.price <= Number(maximum)"
-          :key="item.id"
-          :data-index="index"
-        >
-          <div class="card" style="width: 18rem" v>
-            <!-- tanpa menggunakan v-bind pun bisa menggunakan : seperti ini -->
-            <img
-              :src="item.image"
-              v-bind:alt="item.image_title"
-              class="card-img-top"
-            />
-            <div class="card-body">
-              <h5 class="card-title">{{item.name}}</h5>
-              <p class="card-text">{{item.description}}</p>
-              <p class="card-text">
-                Harga Barang : {{item.price | currencyFormat}}
-              </p>
-              <div class="d-flex justify-content-between">
-                <a :href="item.image" class="btn btn-primary">Show Image</a>
-                <button class="btn btn-info" v-on:click="addToCart(item)">
-                  Add to cart
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </transition-group>
+
+      <!-- component products list -->
+      <product-list
+        v-bind:products="products"
+        v-bind:maximum="maximum"
+        @add-to-cart="addToCart"
+      ></product-list>
+      <!-- component products list-->
     </div>
 
     <script
